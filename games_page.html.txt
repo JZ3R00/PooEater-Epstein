@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EnzoIsRiz - Game Library</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #000000;
+            color: #fff;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Scanline Effect */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(255, 0, 0, 0.02) 0px,
+                transparent 2px,
+                transparent 4px,
+                rgba(255, 0, 0, 0.02) 6px
+            );
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: radial-gradient(circle at 50% 50%, rgba(255, 0, 0, 0.08) 0%, transparent 50%);
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+            padding: 0.5rem 0;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 50px rgba(255, 0, 0, 0.5), inset 0 -2px 0 #ff0000;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 3rem;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 900;
+            color: #ff0000;
+            text-decoration: none;
+            letter-spacing: 8px;
+            text-shadow: 0 0 20px #ff0000;
+            font-family: 'Arial Black', sans-serif;
+        } 8px;
+            text-shadow: 
+                0 0 10px #ff0000,
+                0 0 20px #ff0000,
+                0 0 30px #ff0000,
+                0 0 40px #ff0000;
+            animation: neonPulse 2s ease-in-out infinite alternate;
+            font-family: 'Arial Black', sans-serif;
+            position: relative;
+        }
+
+        .logo::after {
+            content: 'EnzoIsRiz';
+            position: absolute;
+            left: 2px;
+            top: 2px;
+            color: rgba(255, 0, 0, 0.3);
+            z-index: -1;
+        }
+
+        @keyframes neonPulse {
+            0% { 
+                text-shadow: 
+                    0 0 10px #ff0000,
+                    0 0 20px #ff0000,
+                    0 0 30px #ff0000;
+            }
+            100% { 
+                text-shadow: 
+                    0 0 20px #ff0000,
+                    0 0 30px #ff0000,
+                    0 0 40px #ff0000,
+                    0 0 50px #ff0000,
+                    0 0 60px #ff0000;
+            }
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 3rem;
+        }
+
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 0.5rem 0;
+            font-weight: 700;
+            letter-spacing: 3px;
+            font-size: 0.9rem;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background: #ff0000;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px #ff0000;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .nav-links a:hover {
+            color: #ff0000;
+            text-shadow: 0 0 10px #ff0000;
+        }
+
+        /* Main Content */
+        main {
+            padding-top: 100px;
+            min-height: 100vh;
+        }
+
+        .games-header {
+            text-align: center;
+            padding: 4rem 2rem 2rem;
+            position: relative;
+        }
+
+        .games-header::before {
+            display: none;
+        }
+
+        .games-header h1 {
+            font-size: 6rem;
+            margin-bottom: 1rem;
+            font-family: 'Impact', sans-serif;
+            color: #ff0000;
+            text-shadow: 
+                0 0 20px #ff0000,
+                0 0 40px #ff0000,
+                5px 5px 0px #000,
+                -2px -2px 0px rgba(255, 255, 255, 0.1);
+            letter-spacing: 15px;
+            text-transform: uppercase;
+            position: relative;
+            z-index: 2;
+        }
+
+        .games-header p {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+            color: #ffffff;
+            letter-spacing: 3px;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Games Grid */
+        .games-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 3rem;
+            margin-top: 3rem;
+        }
+
+        .game-card {
+            background: rgba(0, 0, 0, 0.9);
+            padding: 0;
+            backdrop-filter: blur(15px);
+            border: 3px solid #ff0000;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            clip-path: polygon(0 0, calc(100% - 30px) 0, 100% 30px, 100% 100%, 30px 100%, 0 calc(100% - 30px));
+        }
+
+        .game-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #ff0000, transparent, #ff0000);
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            clip-path: polygon(0 0, calc(100% - 30px) 0, 100% 30px, 100% 100%, 30px 100%, 0 calc(100% - 30px));
+        }
+
+        .game-card:hover::before {
+            opacity: 1;
+            animation: rotateBorder 4s linear infinite;
+        }
+
+        @keyframes rotateBorder {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+
+        .game-card:hover {
+            transform: translateY(-15px) scale(1.02);
+            box-shadow: 
+                0 30px 60px rgba(255, 0, 0, 0.5),
+                0 0 80px rgba(255, 0, 0, 0.3);
+        }
+
+        .game-card.coming-soon {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .game-image {
+            height: 200px;
+            background: linear-gradient(135deg, #1a0000, #330000, #000000);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5rem;
+            color: #ff0000;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 3px solid #ff0000;
+        }
+
+        .game-image::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 0, 0, 0.3), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 200%; }
+        }
+
+        .game-content {
+            padding: 2.5rem;
+        }
+
+        .game-content h3 {
+            color: #ff0000;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-weight: 900;
+            text-shadow: 0 0 10px #ff0000;
+        }
+
+        .game-content p {
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            line-height: 1.8;
+            color: #ccc;
+        }
+
+        .game-status {
+            display: inline-block;
+            padding: 0.7rem 1.5rem;
+            background: transparent;
+            color: #ff0000;
+            border: 2px solid #ff0000;
+            font-size: 0.9rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            clip-path: polygon(10% 0%, 90% 0%, 100% 25%, 100% 75%, 90% 100%, 10% 100%, 0% 75%, 0% 25%);
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+        }
+
+        .game-card:hover .game-status {
+            background: #ff0000;
+            color: #000;
+        }
+
+        .game-status.coming-soon {
+            border-color: #666;
+            color: #666;
+            box-shadow: none;
+        }
+
+        .game-status.beta {
+            border-color: #ff6600;
+            color: #ff6600;
+            box-shadow: 0 0 10px rgba(255, 102, 0, 0.5);
+        }
+
+        /* Categories */
+        .category-filter {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 1rem 2rem;
+            background: transparent;
+            color: #fff;
+            border: 2px solid #ff0000;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            clip-path: polygon(15% 0%, 85% 0%, 100% 15%, 100% 85%, 85% 100%, 15% 100%, 0% 85%, 0% 15%);
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: #ff0000;
+            color: #000;
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.6);
+        }
+
+        /* Footer */
+        footer {
+            background: rgba(0, 0, 0, 0.98);
+            text-align: center;
+            padding: 3rem 2rem;
+            margin-top: 5rem;
+            border-top: 3px solid #ff0000;
+            box-shadow: 0 0 50px rgba(255, 0, 0, 0.3);
+        }
+
+        footer a {
+            color: #ff0000;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            letter-spacing: 2px;
+        }
+
+        footer a:hover {
+            text-shadow: 0 0 10px #ff0000;
+        }
+
+        footer p {
+            letter-spacing: 2px;
+            margin: 1rem 0;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .games-header h1 {
+                font-size: 3rem;
+                letter-spacing: 5px;
+            }
+            
+            .games-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .category-filter {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .logo {
+                font-size: 1.5rem;
+                letter-spacing: 3px;
+            }
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #000000;
+            border-left: 1px solid #ff0000;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #ff0000;
+            box-shadow: 0 0 10px #ff0000;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #cc0000;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+    
+    <header>
+        <nav>
+            <a href="index.html" class="logo">EnzoIsRiz</a>
+            <ul class="nav-links">
+                <li><a href="index.html">HOME</a></li>
+                <li><a href="games.html">GAMES</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="games-header">
+            <h1>GAMES</h1>
+            <p>Press START to do absolutely nothing productive today!</p>
+        </section>
+
+        <div class="games-container">
+            <div class="games-grid">
+                <div class="game-card" data-category="action">
+                    <div class="game-image">🎮</div>
+                    <div class="game-content">
+                        <h3>PLACEHOLDER</h3>
+                        <p>This is a placeholder for upcoming games. Check back soon for exciting new gaming experiences that will push the boundaries of interactive entertainment.</p>
+                        <span class="game-status coming-soon">COMING SOON</span>
+                    </div>
+                </div>
+
+                <div class="game-card" data-category="action">
+                    <div class="game-image">🎮</div>
+                    <div class="game-content">
+                        <h3>PLACEHOLDER</h3>
+                        <p>This is a placeholder for upcoming games. Check back soon for exciting new gaming experiences that will push the boundaries of interactive entertainment.</p>
+                        <span class="game-status coming-soon">COMING SOON</span>
+                    </div>
+                </div>
+
+                <div class="game-card" data-category="action">
+                    <div class="game-image">🎮</div>
+                    <div class="game-content">
+                        <h3>PLACEHOLDER</h3>
+                        <p>This is a placeholder for upcoming games. Check back soon for exciting new gaming experiences that will push the boundaries of interactive entertainment.</p>
+                        <span class="game-status coming-soon">COMING SOON</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 EnzoIsRiz. All rights reserved.</p>
+        <p><a href="index.html">← Back to Home</a></p>
+    </footer>
+
+    <script>
+        // Category filtering
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const gameCards = document.querySelectorAll('.game-card');
+
+        filterButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove active class from all buttons
+                filterButtons.forEach(b => b.classList.remove('active'));
+                // Add active class to clicked button
+                btn.classList.add('active');
+                
+                const category = btn.dataset.category;
+                
+                gameCards.forEach(card => {
+                    if (category === 'all' || card.dataset.category === category) {
+                        card.style.display = 'block';
+                        card.style.animation = 'fadeInUp 0.5s ease forwards';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        // Header background opacity on scroll
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            const scrolled = window.pageYOffset;
+            const opacity = Math.min(scrolled / 100, 0.95);
+            header.style.background = `rgba(0, 0, 0, ${opacity})`;
+        });
+
+        // Add click animation and navigation to game cards
+        gameCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const gameTitle = card.querySelector('h3').textContent;
+                const gameStatus = card.querySelector('.game-status').textContent;
+                
+                // Only navigate to live and beta games
+                if (gameStatus === 'LIVE NOW' || gameStatus === 'BETA') {
+                    card.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        // Convert game title to filename
+                        const filename = gameTitle.toLowerCase().replace(/\s+/g, '-') + '.html';
+                        window.location.href = filename;
+                    }, 100);
+                } else {
+                    // Coming soon games just animate
+                    card.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        card.style.transform = 'translateY(-15px) scale(1.02)';
+                    }, 100);
+                }
+            });
+        });
+
+        // Add fade in animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(30px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Initialize with fade in animation
+        gameCards.forEach((card, index) => {
+            card.style.animation = `fadeInUp 0.5s ease ${index * 0.1}s forwards`;
+        });
+    </script>
+</body>
+</html>
